@@ -145,4 +145,7 @@ class TestUserQuery(unittest.TestCase):
             1. 존재하는 이름을 삭제하는 경우.
             2. 존재하지 않는 이름을 삭제하는 경우.
         """
-        pass
+        UserQuery.create("유저01")
+        self.assertEqual(UserQuery.delete("name", "유저01"), 0)
+        self.assertEqual(UserQuery.delete("id", "x"*60), User.USER_NOT_EXIST)
+        self.assertEqual(UserQuery.delete("name", "유저01"), User.USER_NOT_EXIST)

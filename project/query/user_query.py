@@ -92,7 +92,6 @@ class UserQuery(Query):
             return User.USER_NOT_EXIST
 
         try:
-
             user.name = __new_name
             db_session.commit()
         except DatabaseRegexNotMatched as e:
@@ -110,13 +109,33 @@ class UserQuery(Query):
             # 성공 시 0 리턴
             return 0
 
-
-
     @staticmethod
-    def delete(__key: str, __value: str):
-        pass
+    def delete(__key: str, __value: str) -> int:
+        db_session = DatabaseConnectionGenerator.get_session()
+
+        user: User = None
+        if __key == "name":
+            user = db_session.query(User).filter(User.name == __value).scalar()
+        elif __key == "id":
+            user = db_session.query(User).filter(User.id == __value).scalar()
+        else:
+            raise TypeError("Key is not matched")
+
+        if not user:
+            return User.USER_NOT_EXIST
+
+        try:
+            db_session.delete(user)
+            db_session.commit()
+        except Exception as e:
+            # 에러 발생 시 롤백과 동시에 에러 호출
+            db_session.rollback()
+            raise e
+        # 삭제 성공
+        return 0
 
     """ Expected Queries """
+
     @staticmethod
     def search_users(__regex: str) -> List[Dict[str, str]]:
         """ 패턴으로 여러 사용자 찾기 """
@@ -132,4 +151,3 @@ class UserQuery(Query):
             })
 
         return res
-
