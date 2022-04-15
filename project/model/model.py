@@ -33,6 +33,7 @@ class User(__base):
     ID_NOT_MATCHED: int = 1
     NAME_NOT_MATCHED: int = 2
     NAME_ALREADY_EXIST: int = 3
+    USER_NOT_EXIST: int = 4
 
     __tablename__ = "user"
 

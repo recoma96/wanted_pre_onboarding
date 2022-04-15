@@ -29,33 +29,32 @@ class UserQuery(Query):
     def create(__name: str) -> int:
         """ 유저 생성 """
         db_session = DatabaseConnectionGenerator.get_session()
-        while True:
-            try:
-                # create
-                user: User = User(id=UserQuery.__generate_id(), name=__name)
-                db_session.add(user)
-                db_session.commit()
-            except DatabaseRegexNotMatched as e:
-                # 이름이 맞지 않음
-                return e.code
-            except sqlalchemy.exc.IntegrityError:
-                # 동일한 이름의 유저를 생성하려고 할 때 발생한다.
-                # 트랜잭션을 롤백한다.
-                db_session.rollback()
-                return User.NAME_ALREADY_EXIST
-            except Exception as e:
-                # 기타 예외
-                raise e
-            else:
-                # 성공 시 0 리턴
-                return 0
+
+        try:
+            # create
+            user: User = User(id=UserQuery.__generate_id(), name=__name)
+            db_session.add(user)
+            db_session.commit()
+        except DatabaseRegexNotMatched as e:
+            # 이름이 맞지 않음
+            return e.code
+        except sqlalchemy.exc.IntegrityError:
+            # 동일한 이름의 유저를 생성하려고 할 때 발생한다.
+            # 트랜잭션을 롤백한다.
+            db_session.rollback()
+            return User.NAME_ALREADY_EXIST
+        except Exception as e:
+            # 기타 예외
+            raise e
+        else:
+            # 성공 시 0 리턴
+            return 0
 
     @staticmethod
     def read(__key: str, __value: str) -> Dict[str, str]:
         """ 유저 정보 찾기 """
 
         db_session = DatabaseConnectionGenerator.get_session()
-
         target: User = None
 
         if __key == "name":
@@ -73,11 +72,64 @@ class UserQuery(Query):
             "name": target.name
         }
 
+    @staticmethod
+    def update(__key: str, __target_value: str, __new_name: str) -> int:
+        """ 유저 이름 수정 """
+
+        db_session = DatabaseConnectionGenerator.get_session()
+        # 유저 찾기
+        user: User = None
+
+        if __key == "name":
+            user = db_session.query(User).filter(User.name == __target_value).scalar()
+        elif __key == "id":
+            user = db_session.query(User).filter(User.id == __target_value).scalar()
+        else:
+            raise TypeError("Key is not matched")
+
+        if not user:
+            # 유저가 존재하지 않는 경우
+            return User.USER_NOT_EXIST
+
+        try:
+
+            user.name = __new_name
+            db_session.commit()
+        except DatabaseRegexNotMatched as e:
+            # 이름이 맞지 않음
+            return e.code
+        except sqlalchemy.exc.IntegrityError:
+            # 동일한 이름의 유저를 생성하려고 할 때 발생한다.
+            # 트랜잭션을 롤백한다.
+            db_session.rollback()
+            return User.NAME_ALREADY_EXIST
+        except Exception as e:
+            # 기타 예외
+            raise e
+        else:
+            # 성공 시 0 리턴
+            return 0
+
+
 
     @staticmethod
-    def update(__item: List[str], __new_name: str):
+    def delete(__key: str, __value: str):
         pass
 
+    """ Expected Queries """
     @staticmethod
-    def delete(__item: List[str]):
-        pass
+    def search_users(__regex: str) -> List[Dict[str, str]]:
+        """ 패턴으로 여러 사용자 찾기 """
+        db_session = DatabaseConnectionGenerator.get_session()
+        target: List[User] = db_session.query(User).filter(User.name.contains(__regex)).all()
+
+        res: List[Dict[str, str]] = []
+
+        for u in target:
+            res.append({
+                "name": u.name,
+                "id": u.id
+            })
+
+        return res
+
