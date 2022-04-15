@@ -1,7 +1,9 @@
 from abc import ABCMeta, abstractmethod
 
+import sqlalchemy.engine
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.scoping import scoped_session
 
 
 class DatabaseConnection(metaclass=ABCMeta):
@@ -11,12 +13,8 @@ class DatabaseConnection(metaclass=ABCMeta):
         하위 클래스로 테스트용 커넥션과, 배포용 커넥션이 있다.
     """
 
-    TYPE_NONE = "none"  # 데이터베이스 상태: 생성 전
-    TYPE_PRODUCT = "product"  # 데이터베이스 상태: 배포 중
-    TYPE_TESTING = "testing"  # 데이터베이스 상태: 테스트중
-
-    engine: object
-    session: object
+    engine: sqlalchemy.engine.base.Engine
+    session: scoped_session
 
     @abstractmethod
     def __init__(self, *args):
@@ -33,6 +31,11 @@ class DatabaseConnection(metaclass=ABCMeta):
     @abstractmethod
     def connect(self):
         # 외부 연결
+        pass
+
+    @abstractmethod
+    def disconnect(self):
+        # 연결 해제
         pass
 
 
@@ -65,4 +68,15 @@ class TestingDatabaseConnection(DatabaseConnection):
 class ProductionDatabaseConnection(DatabaseConnection):
     """ 배포용 데이터베이스 커넥션
     """
-    pass
+
+    __state = {"engine": None, "session": None}
+
+    def __init__(self, *args):
+        pass
+
+    def connect(self):
+        pass
+
+    def disconnect(self):
+        pass
+

@@ -1,7 +1,10 @@
 import sys
 
+import sqlalchemy
+
 from project.connection.database_connection import DatabaseConnection, TestingDatabaseConnection, \
     ProductionDatabaseConnection
+from sqlalchemy.orm.scoping import scoped_session
 
 
 class DatabaseConnectionGenerator:
@@ -12,6 +15,7 @@ class DatabaseConnectionGenerator:
 
     @staticmethod
     def get() -> DatabaseConnection:
+        """ 객체 자체를 리턴 """
         if 'unittest' in sys.modules:
             # 테스트용
             return TestingDatabaseConnection()
@@ -20,16 +24,17 @@ class DatabaseConnectionGenerator:
             return ProductionDatabaseConnection()
 
     @staticmethod
-    def get_engine() -> object:
-        # 엔진 호출
+    def get_engine() -> sqlalchemy.engine.base.Engine:
+        """ 엔진 호출 """
         if 'unittest' in sys.modules:
             return TestingDatabaseConnection().get_engine()
         else:
             return ProductionDatabaseConnection().get_engine()
 
     @staticmethod
-    def get_session() -> object:
-        # 세션 호출
+    def get_session() -> scoped_session:
+        """ 세션 호출 """
+        # 주로 쿼리를 실행할 때 사용
         if 'unittest' in sys.modules:
             return TestingDatabaseConnection().get_session()
         else:
