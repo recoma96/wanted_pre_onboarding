@@ -6,7 +6,7 @@ from project.model.model import rdb_create_all, remove_test_db, User
 from project.query.user_query import UserQuery
 
 
-class TestUserQuery(unittest.TestCase):
+class TestQueryUser(unittest.TestCase):
     """ 사용자 CRUD 테스트
     """
 
