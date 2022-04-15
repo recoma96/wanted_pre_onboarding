@@ -7,11 +7,10 @@ import sqlalchemy.exc
 from project.connection.connection_generator import DatabaseConnectionGenerator
 from project.model.model import User, DatabaseRegexNotMatched
 from project.query.query import Query
-from typing import List
+from typing import List, Dict
 
 
 class UserQuery(Query):
-
     # 아이디를 랜덤하게 생성할 때 사용하는 문자열
     CANDIDATE_ID: str = string.ascii_letters + "0123456789"
 
@@ -37,7 +36,7 @@ class UserQuery(Query):
                 db_session.add(user)
                 db_session.commit()
             except DatabaseRegexNotMatched as e:
-                # validate failed
+                # 이름이 맞지 않음
                 return e.code
             except sqlalchemy.exc.IntegrityError:
                 # 동일한 이름의 유저를 생성하려고 할 때 발생한다.
@@ -45,16 +44,35 @@ class UserQuery(Query):
                 db_session.rollback()
                 return User.NAME_ALREADY_EXIST
             except Exception as e:
+                # 기타 예외
                 raise e
             else:
                 # 성공 시 0 리턴
                 return 0
 
-
-
     @staticmethod
-    def remove(__item: List[str]):
-        pass
+    def read(__key: str, __value: str) -> Dict[str, str]:
+        """ 유저 정보 찾기 """
+
+        db_session = DatabaseConnectionGenerator.get_session()
+
+        target: User = None
+
+        if __key == "name":
+            target = db_session.query(User).filter(User.name == __value).scalar()
+        elif __key == "id":
+            target = db_session.query(User).filter(User.id == __value).scalar()
+        else:
+            raise TypeError("Key is not matched")
+
+        if not target:
+            # 데이터 없음
+            return None
+        return {
+            "id": target.id,
+            "name": target.name
+        }
+
 
     @staticmethod
     def update(__item: List[str], __new_name: str):

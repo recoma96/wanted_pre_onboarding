@@ -13,7 +13,7 @@ class Query(metaclass=ABCMeta):
 
     @staticmethod
     @abstractmethod
-    def remove(*args):
+    def read(*args):
         pass
 
     @staticmethod

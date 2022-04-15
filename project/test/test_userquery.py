@@ -66,6 +66,18 @@ class TestUserQuery(unittest.TestCase):
                          msg="유저를 생성하는데 문제가 발생했습니다.")
 
     def test_read(self):
+        # 정보를 갖고오는 지에 대한 테스트
+
+        UserQuery.create("안녕하세요")
+        self.assertEqual(UserQuery.read("name", "안녕하세요")['name'], "안녕하세요")
+
+        # 존재하지 않는 정보
+        self.assertIsNone(UserQuery.read("name", "안녕"))
+
+        # 잘못된 key 이름
+        self.assertRaises(TypeError, UserQuery.read, "???", "안녕하세요")
+
+    def test_read_namelist(self):
         """ 일부 문자가 포함되어 있는 이름 출력
             해당 과제의 요규사항에는 없으나 CRUD Function을 원칙대로 작성하기 위해
             추가 구현
@@ -73,7 +85,9 @@ class TestUserQuery(unittest.TestCase):
             테스팅 내역
             일부 문자에 대한 검색
         """
-        pass
+        UserQuery.create("안녕하세요")
+        UserQuery.create("란녕하세요")
+        UserQuery.create("유저이름")
 
     def test_update(self):
         """ 유저 이름 변경
