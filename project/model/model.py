@@ -1,12 +1,13 @@
-# 데이터베이스 테이블을 생성하기 위한 함수
-# 밖에서 사용하지 말 것
-import re, datetime
+import re, datetime, random
+import string
 
 from sqlalchemy.orm import declarative_base, validates
-from sqlalchemy import Column, String, ForeignKey, DateTime, func
+from sqlalchemy import Column, String, ForeignKey, DateTime, func, Integer
 
 from project.connection.connection_generator import DatabaseConnectionGenerator
 
+# 데이터베이스 테이블을 생성하기 위한 함수
+# 밖에서 사용하지 말 것
 __base = declarative_base()
 
 """ Validate Regexes """
@@ -23,6 +24,18 @@ class DatabaseRegexNotMatched(Exception):
     def __init__(self, __code: int, __msg: str):
         super().__init__(__msg)
         self.code = __code
+
+
+def generate_id() -> str:
+    """ 임의 랜덤 아이디 생성기
+         Format: [날짜(microsecond까지)][랜덤]
+    """
+    CANDIDATE_ID: str = string.ascii_letters + "0123456789"
+    now = datetime.datetime.now()
+    new_id = now.strftime("%Y%M%d%H%M%S%f")  # 20 line
+    for _ in range(40):
+        new_id += random.choice(CANDIDATE_ID)
+    return new_id
 
 
 class User(__base):
@@ -59,22 +72,11 @@ class User(__base):
 
 class Item(__base):
     """ 상품 테이블
-        item_id: 60자의 랜덤 숫자/영어
-        user_id: User로부터 갖고옴
 
-        name: 상품 이름 128자 이하
-        summary: 설명 2048자 이하
-        createDate: 생성 날짜
-        endDate: 종료 날짜
+        itemId: 상품 아이디
+
+
     """
-
-    ITEM_ID_NOT_MATCHED: int = 1
-    USER_ID_NOT_MATCHED: int = 2
-    NAME_NOT_MATCHED: int = 3
-    SUMMARY_NOT_MATCHED: int = 4
-    END_DATE_NOT_MATCHED: int = 5
-    ITEM_ALREADY_EXISTS: int = 6
-
     __tablename__ = "item"
 
     item_id = Column("itemId", String(60), primary_key=True, index=True)
@@ -82,42 +84,10 @@ class Item(__base):
         "userId", ForeignKey("user.id", ondelete="CASCADE"),
         nullable=False, primary_key=True
     )
-    name = Column("name", String(128), nullable=False, primary_key=True)
-    summary = Column("summary", String(2048), nullable=True)
+    name = Column("name", String(128), nullable=False, primary_key=True, unique=True)
     create_date = Column("createDate", DateTime(timezone=True), server_default=func.now(), nullable=False)
     end_date = Column("endDate", DateTime(timezone=True), nullable=False)
-
-    @validates("itemId")
-    def validate_item_id(self, __key: str, __id: str):
-        if not ITEM_ITEMID_REGEX.match(__id):
-            raise DatabaseRegexNotMatched(Item.ITEM_ID_NOT_MATCHED, "item id not matched")
-        return __id
-
-    @validates("userId")
-    def validate_user_id(self, __key: str, __id: str):
-        if not USER_ID_REGEX.match(__id):
-            raise DatabaseRegexNotMatched(Item.USER_ID_NOT_MATCHED, "user id not matched")
-        return __id
-
-    @validates("name")
-    def validate_name(self, __key: str, __name: str):
-        if not __name or len(__name) > 128:
-            raise DatabaseRegexNotMatched(Item.NAME_NOT_MATCHED, "name not matched")
-        return __name
-
-    @validates("summary")
-    def validate_summary(self, __key: str, __summary: str):
-        if __summary and len(__summary) > 2048:
-            raise DatabaseRegexNotMatched(Item.SUMMARY_NOT_MATCHED, "summary not matched")
-        return __summary
-
-    @validates("end_date")
-    def validate_end_date(self, __key: str, __end_date: datetime.datetime):
-        if not __end_date:
-            raise DatabaseRegexNotMatched(Item.END_DATE_NOT_MATCHED, "endtime not matched")
-        return __end_date
-
-
+    participant_size = Column("participantSize", Integer, default=0, nullable=False)
 
 
 """ Database Table Control Functions """

@@ -3,6 +3,10 @@ import datetime
 import random
 from typing import List, Dict
 
+import sqlalchemy.exc
+
+from project.connection.connection_generator import DatabaseConnectionGenerator
+from project.model.model import User, Item, DatabaseRegexNotMatched
 from project.query.query import Query
 from project.query.user_query import UserQuery
 
@@ -11,22 +15,23 @@ class ItemQuery(Query):
     """ 상품 CRUD 쿼리
     """
 
-    # 아이디를 랜덤하게 생성할 때 사용하는 문자열
-    CANDIDATE_ID: str = string.ascii_letters + "0123456789"
-
     @staticmethod
-    def __generate_id() -> str:
-        """ 계정을 생성할 때 사용하는 랜덤 id
-            Format: [날짜(microsecond까지)][랜덤]
+    def create(__user: List[str],
+               __name: str,
+               __summary: str,
+               __end_date: datetime.datetime,
+               __funding_unit: int,
+               __target_money: int) -> int:
         """
-        now = datetime.datetime.now()
-        new_id = now.strftime("%Y%M%d%H%M%S%f")  # 20 line
-        for _ in range(40):
-            new_id += random.choice(UserQuery.CANDIDATE_ID)
-        return new_id
 
-    @staticmethod
-    def create(__user: List[str], __name: str, __summary: str, __end_date: datetime.datetime) -> int:
+        :param __user:          게시자 정보 이름 또는 아이디가 들어간다.
+        :param __name:          상품 이름
+        :param __summary:       상품에 대한 설명
+        :param __end_date:      만료일
+        :param __funding_unit:  1회당 금액   
+        :param __target_money:  목표 금액
+        :return:
+        """
         pass
 
     @staticmethod

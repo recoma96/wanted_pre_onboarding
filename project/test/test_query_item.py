@@ -1,11 +1,7 @@
 import unittest
-import datetime
-from typing import List, Dict
 
 from project.connection.connection_generator import DatabaseConnectionGenerator
-from project.model.model import rdb_create_all, remove_test_db, User, Item
-from project.query.item_query import ItemQuery
-from project.query.user_query import UserQuery
+from project.model.model import rdb_create_all, remove_test_db, User
 
 
 class TestQueryUser(unittest.TestCase):
@@ -36,42 +32,13 @@ class TestQueryUser(unittest.TestCase):
         """ 상품(만) 생성 (펀딩관련 생성 X)
 
             * 상품 이름이 128자를 넘어가면 안된다.
-            * 상품 설명이 2048자를 넘어가면 안된다.
             * 펀딩 종료일은 과거여도 상관없음
-            * 하나의 유저가 동일한 이름의 상품을 생성할 수 없다.
+            * 동일한 이름의 상품을 생성할 수 없다.
+            * 없는 유저에 상품을 등록할 수 없다.
         """
+        pass
 
-        # 상품을 등록할 유저 생성
-        user_name: str = "유저01"
-        UserQuery.create(user_name)
-        user_id: str = UserQuery.read("name", user_name)['id']
-
-        # 테스팅을 위한 default data
-        default_name: str = "펀딩 이벤트"
-        default_end_time: datetime.datetime = datetime.datetime.now() + datetime.timedelta(days=7)
-        default_summary: str = "펀딩 예시 설명 입니다."
-
-        # 1.1 상품 이름이 비어있으면 안된다.
-        self.assertEqual(ItemQuery.create(["id", user_id], "", default_summary, default_end_time),
-                         Item.NAME_NOT_MATCHED)
-
-        # 1.2 상품 이름이 128자를 넘어가면 안된다
-        self.assertEqual(ItemQuery.create(["id", user_id], "x"*129, default_summary, default_end_time),
-                         Item.NAME_NOT_MATCHED)
-
-        # 2. 상품 설명이 2048자를 넘어가면 안된다.
-        self.assertEqual(ItemQuery.create(["id", user_id], default_name, "x"*2049, default_end_time),
-                         Item.SUMMARY_NOT_MATCHED)
-
-        # 3. 펀딩 종료일이 비어있으면 안된다.
-        self.assertEqual(ItemQuery.create(["id", user_id], default_name, default_summary, None),
-                         Item.SUMMARY_NOT_MATCHED)
-
-        # 정상적인 입력
-        self.assertEqual(ItemQuery.create(["id", user_id], default_name, default_summary, default_end_time),
-                         0)
-
-        # 4. 동일한 유전자가 동일한 이름의 상품을 생성할 수 없다
-        self.assertEqual(ItemQuery.create(["id", user_id], default_name, default_summary, default_end_time),
-                         Item.ITEM_ALREADY_EXISTS)
-
+    def test_read(self):
+        """ 하나의
+        """
+        pass

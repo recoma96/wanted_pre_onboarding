@@ -86,9 +86,9 @@ class TestQueryUser(unittest.TestCase):
             테스팅 내역
             일부 문자에 대한 검색
         """
-        UserQuery.create("안녕하세요")
-        UserQuery.create("란녕하세요")
-        UserQuery.create("유저이름")
+        self.assertEqual(UserQuery.create("안녕하세요"), 0)
+        self.assertEqual(UserQuery.create("란녕하세요"), 0)
+        self.assertEqual(UserQuery.create("유저이름"), 0)
 
         output: List[str] = []
         # 검색
