@@ -11,6 +11,8 @@ from typing import List, Dict
 
 
 class UserQuery(Query):
+    """ 유저 관련 쿼리 """
+
     # 아이디를 랜덤하게 생성할 때 사용하는 문자열
     CANDIDATE_ID: str = string.ascii_letters + "0123456789"
 
