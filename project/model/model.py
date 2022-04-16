@@ -74,20 +74,43 @@ class Item(__base):
     """ 상품 테이블
 
         itemId: 상품 아이디
-
-
+        userId: 유저 아이디
+        name: 상품 이름
+        create_date: 생성 날짜 (DB에서 자동 생성)
+        end_date: 종료일
+        participant_size: 참가자 수
+        target_funding: 목표 금액
+        funding_unit: 1회당 펀딩 금액
     """
     __tablename__ = "item"
 
     item_id = Column("itemId", String(60), primary_key=True, index=True)
     user_id = Column(
         "userId", ForeignKey("user.id", ondelete="CASCADE"),
-        nullable=False, primary_key=True
+        nullable=False
     )
-    name = Column("name", String(128), nullable=False, primary_key=True, unique=True)
+    name = Column("name", String(128), nullable=False, unique=True)
     create_date = Column("createDate", DateTime(timezone=True), server_default=func.now(), nullable=False)
     end_date = Column("endDate", DateTime(timezone=True), nullable=False)
+
     participant_size = Column("participantSize", Integer, default=0, nullable=False)
+    target_funding = Column("targetFunding", Integer, nullable=False)
+    funding_unit = Column("fundingUnit", Integer, nullable=False)
+
+
+class ItemContents(__base):
+    """ 해당 상품에 대한 추가적인 요소들 (주로 데이터가 방대한 경우)
+
+        itemId: 상품 아이디
+        summary: 상품 요약
+    """
+    __tablename__ = "itemContents"
+
+    item_id = Column(
+        "itemId", ForeignKey("item.id", ondelete="CASCADE"),
+        nullable=False, primary_key=True
+    )
+    summary = Column("summary", String(2048), nullable=True)
 
 
 """ Database Table Control Functions """
