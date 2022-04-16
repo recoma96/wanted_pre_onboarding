@@ -3,6 +3,7 @@ from typing import List, Dict
 
 from project.connection.connection_generator import DatabaseConnectionGenerator
 from project.model.model import rdb_create_all, remove_test_db, User
+from project.query.err_codes import UserQueryErrorCode
 from project.query.user_query import UserQuery
 
 
@@ -42,28 +43,28 @@ class TestQueryUser(unittest.TestCase):
         """
 
         # 1. 이름이 비어있음
-        self.assertEqual(UserQuery.create(""), User.NAME_NOT_MATCHED,
+        self.assertEqual(UserQuery.create(""), UserQueryErrorCode.NAME_NOT_MATCHED,
                          msg="생성하고자 하는 유저 이름이 비어있어선 안됩니다.")
 
         # 2. 65자 이상의 이름이 들어가 있으면 안된다.
-        self.assertEqual(UserQuery.create("a" * 65), User.NAME_NOT_MATCHED,
+        self.assertEqual(UserQuery.create("a" * 65), UserQueryErrorCode.NAME_NOT_MATCHED,
                          msg="이름이 65자 이상이면 안됩니다.")
 
         # 3. 한글/영어 숫자가 아닌 다른 단어가 들어가면 안됨(1)
-        self.assertEqual(UserQuery.create("         "), User.NAME_NOT_MATCHED,
+        self.assertEqual(UserQuery.create("         "), UserQueryErrorCode.NAME_NOT_MATCHED,
                          msg="이름에는 한글/영어/숫자 만 들어가야 합니다.")
 
         # 3. 한글/영어 숫자가 아닌 다른 단어가 들어가면 안됨(2)
-        self.assertEqual(UserQuery.create("()///)"), User.NAME_NOT_MATCHED,
+        self.assertEqual(UserQuery.create("()///)"), UserQueryErrorCode.NAME_NOT_MATCHED,
                          msg="이름에는 한글/영어/숫자 만 들어가야 합니다.")
 
         # 4. 정상적인 생성
 
-        self.assertEqual(UserQuery.create("하정현96"), 0,
+        self.assertEqual(UserQuery.create("하정현96"), UserQueryErrorCode.SUCCEED,
                          msg="유저를 생성하는데 문제가 발생했습니다.")
 
         # 5.동일 이름 생성 불가
-        self.assertEqual(UserQuery.create("하정현96"), User.NAME_ALREADY_EXIST,
+        self.assertEqual(UserQuery.create("하정현96"), UserQueryErrorCode.NAME_ALREADY_EXIST,
                          msg="유저를 생성하는데 문제가 발생했습니다.")
 
     def test_read(self):
@@ -86,9 +87,9 @@ class TestQueryUser(unittest.TestCase):
             테스팅 내역
             일부 문자에 대한 검색
         """
-        self.assertEqual(UserQuery.create("안녕하세요"), 0)
-        self.assertEqual(UserQuery.create("란녕하세요"), 0)
-        self.assertEqual(UserQuery.create("유저이름"), 0)
+        self.assertEqual(UserQuery.create("안녕하세요"), UserQueryErrorCode.SUCCEED)
+        self.assertEqual(UserQuery.create("란녕하세요"), UserQueryErrorCode.SUCCEED)
+        self.assertEqual(UserQuery.create("유저이름"), UserQueryErrorCode.SUCCEED)
 
         output: List[str] = []
         # 검색
@@ -108,31 +109,31 @@ class TestQueryUser(unittest.TestCase):
         user_id, user_name = user['id'], user['name']
 
         # 0: 존재하지 않는 유저의 데이터를 수정하려고 함
-        self.assertEqual(UserQuery.update("name", "안녕", "안녕2"), User.USER_NOT_EXIST,
+        self.assertEqual(UserQuery.update("name", "안녕", "안녕2"), UserQueryErrorCode.USER_NOT_EXIST,
                          msg="이 유저는 없는 유저 입니다.")
 
         # 1. 이름이 비어있음
-        self.assertEqual(UserQuery.update("id", user_id, ""), User.NAME_NOT_MATCHED,
+        self.assertEqual(UserQuery.update("id", user_id, ""), UserQueryErrorCode.NAME_NOT_MATCHED,
                          msg="생성하고자 하는 유저 이름이 비어있어선 안됩니다.")
 
         # 2. 65자 이상의 이름이 들어가 있으면 안된다.
-        self.assertEqual(UserQuery.update("name", user_name, "a" * 65), User.NAME_NOT_MATCHED,
+        self.assertEqual(UserQuery.update("name", user_name, "a" * 65), UserQueryErrorCode.NAME_NOT_MATCHED,
                          msg="이름이 65자 이상이면 안됩니다.")
 
         # 3. 한글/영어 숫자가 아닌 다른 단어가 들어가면 안됨(1)
-        self.assertEqual(UserQuery.update("id", user_id, "         "), User.NAME_NOT_MATCHED,
+        self.assertEqual(UserQuery.update("id", user_id, "         "), UserQueryErrorCode.NAME_NOT_MATCHED,
                          msg="이름에는 한글/영어/숫자 만 들어가야 합니다.")
 
         # 3. 한글/영어 숫자가 아닌 다른 단어가 들어가면 안됨(2)
-        self.assertEqual(UserQuery.update("id", user_id, "()///)"), User.NAME_NOT_MATCHED,
+        self.assertEqual(UserQuery.update("id", user_id, "()///)"), UserQueryErrorCode.NAME_NOT_MATCHED,
                          msg="이름에는 한글/영어/숫자 만 들어가야 합니다.")
 
         # 4. 동일 이름 수정 불가
-        self.assertEqual(UserQuery.update("id", user_id, "유저02"), User.NAME_ALREADY_EXIST,
+        self.assertEqual(UserQuery.update("id", user_id, "유저02"), UserQueryErrorCode.NAME_ALREADY_EXIST,
                          msg="유저를 생성하는데 문제가 발생했습니다.")
 
         # 5. 정상적인 생성
-        self.assertEqual(UserQuery.update("id", user_id, "하정현96"), 0,
+        self.assertEqual(UserQuery.update("id", user_id, "하정현96"), UserQueryErrorCode.SUCCEED,
                          msg="유저를 생성하는데 문제가 발생했습니다.")
 
         # 6. 맞지 않는 키 사용
@@ -146,6 +147,6 @@ class TestQueryUser(unittest.TestCase):
             2. 존재하지 않는 이름을 삭제하는 경우.
         """
         UserQuery.create("유저01")
-        self.assertEqual(UserQuery.delete("name", "유저01"), 0)
-        self.assertEqual(UserQuery.delete("id", "x"*60), User.USER_NOT_EXIST)
-        self.assertEqual(UserQuery.delete("name", "유저01"), User.USER_NOT_EXIST)
+        self.assertEqual(UserQuery.delete("name", "유저01"), UserQueryErrorCode.SUCCEED)
+        self.assertEqual(UserQuery.delete("id", "x"*60), UserQueryErrorCode.USER_NOT_EXIST)
+        self.assertEqual(UserQuery.delete("name", "유저01"), UserQueryErrorCode.USER_NOT_EXIST)

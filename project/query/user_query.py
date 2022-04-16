@@ -2,6 +2,7 @@ import sqlalchemy.exc
 
 from project.connection.connection_generator import DatabaseConnectionGenerator
 from project.model.model import User, DatabaseRegexNotMatched, generate_id
+from project.query.err_codes import UserQueryErrorCode
 from project.query.query import Query
 from typing import List, Dict
 
@@ -10,7 +11,7 @@ class UserQuery(Query):
     """ 유저 관련 쿼리 """
 
     @staticmethod
-    def create(__name: str) -> int:
+    def create(__name: str) -> UserQueryErrorCode:
         """ 유저 생성 """
         db_session = DatabaseConnectionGenerator.get_session()
 
@@ -26,14 +27,14 @@ class UserQuery(Query):
             # 동일한 이름의 유저를 생성하려고 할 때 발생한다.
             # 트랜잭션을 롤백한다.
             db_session.rollback()
-            return User.NAME_ALREADY_EXIST
+            return UserQueryErrorCode.NAME_ALREADY_EXIST
         except Exception as e:
             # 기타 예외
             db_session.rollback()
             raise e
         else:
             # 성공 시 0 리턴
-            return 0
+            return UserQueryErrorCode.SUCCEED
 
     @staticmethod
     def read(__key: str, __value: str) -> Dict[str, str]:
@@ -72,7 +73,7 @@ class UserQuery(Query):
 
         if not user:
             # 유저가 존재하지 않는 경우
-            return User.USER_NOT_EXIST
+            return UserQueryErrorCode.USER_NOT_EXIST
 
         try:
             user.name = __new_name
@@ -84,13 +85,13 @@ class UserQuery(Query):
             # 동일한 이름의 유저를 생성하려고 할 때 발생한다.
             # 트랜잭션을 롤백한다.
             db_session.rollback()
-            return User.NAME_ALREADY_EXIST
+            return UserQueryErrorCode.NAME_ALREADY_EXIST
         except Exception as e:
             # 기타 예외
             raise e
         else:
             # 성공 시 0 리턴
-            return 0
+            return UserQueryErrorCode.SUCCEED
 
     @staticmethod
     def delete(__key: str, __value: str) -> int:
@@ -104,7 +105,7 @@ class UserQuery(Query):
             raise TypeError("Key is not matched")
 
         if not user:
-            return User.USER_NOT_EXIST
+            return UserQueryErrorCode.USER_NOT_EXIST
 
         try:
             db_session.delete(user)
@@ -114,7 +115,7 @@ class UserQuery(Query):
             db_session.rollback()
             raise e
         # 삭제 성공
-        return 0
+        return UserQueryErrorCode.SUCCEED
 
     """ Expected Queries """
 

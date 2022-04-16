@@ -1,21 +1,17 @@
 import re, datetime, random
 import string
-
 from sqlalchemy.orm import declarative_base, validates
 from sqlalchemy import Column, String, ForeignKey, DateTime, func, Integer
-
 from project.connection.connection_generator import DatabaseConnectionGenerator
+from project.query.err_codes import ItemQueryErrorCode, UserQueryErrorCode
 
 # 데이터베이스 테이블을 생성하기 위한 함수
 # 밖에서 사용하지 말 것
-from project.query.err_codes import ItemQueryErrorCode
-
 __base = declarative_base()
 
 """ Validate Regexes """
 USER_ID_REGEX: re.Pattern = re.compile(r"^([0-9A-Za-z]{60})$")
 USER_NAME_REGEX: re.Pattern = re.compile(r"^([a-zA-Zㄱ-힣0-9]{1,64})$")
-
 ITEM_ITEMID_REGEX: re.Pattern = re.compile(r"^([0-9A-Za-z]{60})$")
 
 
@@ -46,12 +42,6 @@ class User(__base):
         name: 유저 이름 (1자 이상 64자 이하 특수문자 제외)
     """
 
-    # Error Codes in regex
-    ID_NOT_MATCHED: int = 1
-    NAME_NOT_MATCHED: int = 2
-    NAME_ALREADY_EXIST: int = 3
-    USER_NOT_EXIST: int = 4
-
     __tablename__ = "user"
 
     id = Column("id", String(60), primary_key=True, index=True)
@@ -61,14 +51,14 @@ class User(__base):
     def validate_id(self, __key, __id: str):
         # 아이디는 60자 이하의 숫자/영어
         if not USER_ID_REGEX.match(__id):
-            raise DatabaseRegexNotMatched(User.ID_NOT_MATCHED, "user id not matched")
+            raise DatabaseRegexNotMatched(UserQueryErrorCode.ID_NOT_MATCHED, "user id not matched")
         return __id
 
     @validates("name")
     def validate_name(self, __key, __name: str):
 
         if not USER_NAME_REGEX.match(__name):
-            raise DatabaseRegexNotMatched(User.NAME_NOT_MATCHED, "user name not matched")
+            raise DatabaseRegexNotMatched(UserQueryErrorCode.NAME_NOT_MATCHED, "user name not matched")
         return __name
 
 
