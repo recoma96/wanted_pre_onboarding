@@ -8,6 +8,8 @@ from project.connection.connection_generator import DatabaseConnectionGenerator
 
 # 데이터베이스 테이블을 생성하기 위한 함수
 # 밖에서 사용하지 말 것
+from project.query.err_codes import ItemQueryErrorCode
+
 __base = declarative_base()
 
 """ Validate Regexes """
@@ -21,7 +23,7 @@ class DatabaseRegexNotMatched(Exception):
     # validate 매칭이 안되는 경우에 대한 에러
     code: int
 
-    def __init__(self, __code: int, __msg: str):
+    def __init__(self, __code: object, __msg: str):
         super().__init__(__msg)
         self.code = __code
 
@@ -94,8 +96,66 @@ class Item(__base):
     end_date = Column("endDate", DateTime(timezone=True), nullable=False)
 
     participant_size = Column("participantSize", Integer, default=0, nullable=False)
-    target_funding = Column("targetFunding", Integer, nullable=False)
+    target_money = Column("targetMoney", Integer, nullable=False)
+    current_money = Column("currentMoney", Integer, nullable=False, default=0)
     funding_unit = Column("fundingUnit", Integer, nullable=False)
+
+    @validates("item_id")
+    def validate_item_id(self, __key: str, __item_id: str):
+        if not ITEM_ITEMID_REGEX.match(__item_id):
+            raise DatabaseRegexNotMatched(
+                ItemQueryErrorCode.ITEM_ID_NOT_MATCHED, "item id not matched")
+        return __item_id
+
+    @validates("user_id")
+    def validate_user_id(self, __key: str, __user_id: str):
+        if not USER_ID_REGEX.match(__user_id):
+            raise DatabaseRegexNotMatched(
+                ItemQueryErrorCode.USER_ID_NOT_MATCHED, "user id not matched")
+        return __user_id
+
+    @validates("name")
+    def validate_name(self, __key: str, __name: str):
+        if not __name or len(__name) > 128:
+            raise DatabaseRegexNotMatched(
+                ItemQueryErrorCode.NAME_NOT_MATCHED, "name not matched")
+        return __name
+
+    @validates("end_date")
+    def validate_end_date(self, __key: str, __date: datetime.datetime):
+        if not __date:
+            raise DatabaseRegexNotMatched(
+                ItemQueryErrorCode.END_DATE_NOT_MATCHED, "end date must not be none")
+        return __date
+
+    @validates("participant_size")
+    def validate_participant_size(self, __key: str, __size: int):
+        if __size < 0:
+            raise DatabaseRegexNotMatched(
+                ItemQueryErrorCode.PARTICIPANT_SIZE_NOT_MATCHED, "participant size error")
+        return __size
+
+    @validates("target_money")
+    def validate_target_money(self, __key: str, __money: int):
+        if __money <= 0:
+            raise DatabaseRegexNotMatched(
+                ItemQueryErrorCode.TARGET_MONEY_NOT_MATCHED, "participant size error")
+        return __money
+
+    @validates("funding_unit")
+    def validate_funding_unit(self, __key: str, __funding_unit: int):
+        if __funding_unit <= 0:
+            raise DatabaseRegexNotMatched(
+                ItemQueryErrorCode.FUNDING_UNIT_NOT_MATCHED, "participant size error")
+        return __funding_unit
+
+    @validates("current_money")
+    def validate_current_money(self, __key: str, __current_money: int):
+        if __current_money < 0:
+            raise DatabaseRegexNotMatched(
+                ItemQueryErrorCode.CURRENT_MONEY_NOT_MATCHED, "current money not matched"
+            )
+        return __current_money
 
 
 class ItemContents(__base):
@@ -107,10 +167,25 @@ class ItemContents(__base):
     __tablename__ = "itemContents"
 
     item_id = Column(
-        "itemId", ForeignKey("item.id", ondelete="CASCADE"),
+        "itemId", ForeignKey("item.itemId", ondelete="CASCADE"),
         nullable=False, primary_key=True
     )
     summary = Column("summary", String(2048), nullable=True)
+
+    @validates("item_id")
+    def validate_item_id(self, __key: str, __item_id: str):
+        if not ITEM_ITEMID_REGEX.match(__item_id):
+            raise DatabaseRegexNotMatched(
+                ItemQueryErrorCode.ITEM_ID_NOT_MATCHED, "item id not matched")
+        return __item_id
+
+    @validates("summary")
+    def validate_summary(self, __key: str, __summary: str):
+        if __summary and len(__summary) > 2048:
+            raise DatabaseRegexNotMatched(
+                ItemQueryErrorCode.SUMMARY_MATCHED_FAILED, "summary not matched"
+            )
+        return __summary
 
 
 """ Database Table Control Functions """

@@ -29,6 +29,7 @@ class UserQuery(Query):
             return User.NAME_ALREADY_EXIST
         except Exception as e:
             # 기타 예외
+            db_session.rollback()
             raise e
         else:
             # 성공 시 0 리턴
