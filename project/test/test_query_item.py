@@ -33,6 +33,7 @@ class TestQueryUser(unittest.TestCase):
         # 테스트 함수가 끝날 때마다 호출
         # 모든 데이터 전부 삭제
         db_session = DatabaseConnectionGenerator.get_session()
+        db_session.query(ItemContents).delete()
         db_session.query(Item).delete()
         db_session.query(User).delete()
 
