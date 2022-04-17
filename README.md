@@ -124,7 +124,7 @@ class ItemManager(Manager):
 
 #### 작동 상태(unittest, deploy)가 달라도 코드는 그대로 (Factory Pattern)
 
-이 프로젝트에서는 배포용으로 MySQL, 테스트용으로는 MySQL을 사용합니다. ORM의 도움 덕분에 Low하게 SQLite, MySQL 모듈을 직접 사용할 일이 없지만, 그래도 DB Engine을 관리함에 있어 코드에 차이가 있습니다. 그렇다고 매 DB가 필요할 때마다 if문을 이용해서 테스트, 배포용 코드를 작성하면 코드가 꼬이기 때문에 이를 방지하는 DatabaseConnectionGenerator 클래스를 따로 작성하게 되었습니다.
+이 프로젝트에서는 배포용으로 MySQL, 테스트용으로는 SQLite을 사용합니다. ORM의 도움 덕분에 Low하게 SQLite, MySQL 모듈을 직접 사용할 일이 없지만, 그래도 DB Engine을 관리함에 있어 코드에 차이가 있습니다. 그렇다고 매 DB가 필요할 때마다 if문을 이용해서 테스트, 배포용 코드를 작성하면 코드가 꼬이기 때문에 이를 방지하는 DatabaseConnectionGenerator 클래스를 따로 작성하게 되었습니다.
 
 ```python
 class DatabaseConnectionGenerator:
