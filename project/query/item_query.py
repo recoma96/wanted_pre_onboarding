@@ -16,44 +16,46 @@ class ItemQuery(Query):
     """
 
     @staticmethod
-    def create(__user: List[str],
-               __name: str,
-               __summary: str,
-               __end_date: datetime.datetime,
-               __funding_unit: int,
-               __target_money: int) -> ItemQueryErrorCode:
+    def create(user: List[str],
+               name: str,
+               summary: str,
+               end_date: datetime.datetime,
+               funding_unit: int,
+               target_money: int) -> ItemQueryErrorCode:
         """
 
-        :param __user:          게시자 정보 이름 또는 아이디가 들어간다.
-        :param __name:          상품 이름
-        :param __summary:       상품에 대한 설명
-        :param __end_date:      만료일
-        :param __funding_unit:  1회당 금액   
-        :param __target_money:  목표 금액
+        :param user:          게시자 정보 이름 또는 아이디가 들어간다.
+        :param name:          상품 이름
+        :param summary:       상품에 대한 설명
+        :param end_date:      만료일
+        :param funding_unit:  1회당 금액
+        :param target_money:  목표 금액
         :return: 에러 코드
         """
 
         # 유저 찾기
-        user: Dict[str, object] = UserQuery.read(*__user)
+        user: Dict[str, object] = UserQuery.read(*user)
         if not user:
             # 유저 없음
             return ItemQueryErrorCode.USER_NOT_EXISTS
 
         db_session = DatabaseConnectionGenerator.get_session()
 
-        # DB에 insert
         try:
+            # DB에 insert
             item: Item = Item(
                 item_id=generate_id(),
                 user_id=user['id'],
-                name=__name,
-                end_date=__end_date,
-                target_money=__target_money,
-                funding_unit=__funding_unit
+                name=name,
+                end_date=end_date,
+                target_money=target_money,
+                funding_unit=funding_unit
             )
+
+            # 설명란 저장을 위해 contents도 추가 insert
             contents: ItemContents = ItemContents(
                 item_id=item.item_id,
-                summary=__summary
+                summary=summary
             )
             db_session.add(item)
             db_session.add(contents)
@@ -63,6 +65,7 @@ class ItemQuery(Query):
             return e.code
         except sqlalchemy.exc.IntegrityError:
             # DB 상에서의 에러
+            # 주로 아이템 이름이 중복되는 경우 발생
             # rollback
             db_session.rollback()
             return ItemQueryErrorCode.ITEM_ALREADY_EXISTS
@@ -74,7 +77,7 @@ class ItemQuery(Query):
             return ItemQueryErrorCode.SUCCEED
 
     @staticmethod
-    def read(__key: str, __value: str) -> Dict[str, object]:
+    def read(key: str, value: str) -> Dict[str, object]:
 
         # 상품 갖고오기
         db_session = DatabaseConnectionGenerator.get_session()
@@ -82,10 +85,10 @@ class ItemQuery(Query):
         # 상품 정보 갖고오기
         item: Item = None
 
-        if __key == 'id':
-            item = db_session.query(Item).filter(Item.item_id == __value).scalar()
-        elif __key == "name":
-            item = db_session.query(Item).filter(Item.name == __value).scalar()
+        if key == 'id':
+            item = db_session.query(Item).filter(Item.item_id == value).scalar()
+        elif key == "name":
+            item = db_session.query(Item).filter(Item.name == value).scalar()
 
         if not item:
             # 정보 없음
@@ -122,12 +125,18 @@ class ItemQuery(Query):
                funding_unit: int = None,
                participant_size: int = None,
                current_money: int = None) -> ItemQueryErrorCode:
-        """ 상품 상세정보 갖고오기
+        """ 상품 정보 수정하기
         """
+
         # 상품 정보 갖고오기
         db_session = DatabaseConnectionGenerator.get_session()
         ikey, ivalue = item_code
+        """ item_code -> [검색 항목, 검색 값]
+            EX) ["id", 상품 아이디], ["name", 상품 이름]
+        """
         item: Item = None
+
+        # 상품 검색
         if ikey == 'id':
             item = db_session.query(Item).filter(Item.item_id == ivalue).scalar()
         elif ikey == "name":
@@ -143,6 +152,7 @@ class ItemQuery(Query):
 
         try:
             # item 정보 수정
+            # 선택적 정보 수정
             if name:
                 item.name = name
             if end_date:
@@ -158,8 +168,8 @@ class ItemQuery(Query):
         except DatabaseRegexNotMatched as e:
             return e.code
 
-        # DB에 업로드
         try:
+            # DB에 업로드
             db_session.commit()
         except sqlalchemy.exc.IntegrityError:
             # DB 내부 에러
@@ -174,6 +184,7 @@ class ItemQuery(Query):
 
     @staticmethod
     def delete(key: str, value: str) -> ItemQueryErrorCode:
+        """ 상품 삭제 """
 
         db_session = DatabaseConnectionGenerator.get_session()
         deleted_item: Item = None

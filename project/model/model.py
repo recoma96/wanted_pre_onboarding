@@ -1,6 +1,8 @@
-import re, datetime, random
+import re
+import datetime
+import random
 import string
-from sqlalchemy.orm import declarative_base, validates, relationship, backref
+from sqlalchemy.orm import declarative_base, validates
 from sqlalchemy import Column, String, ForeignKey, DateTime, func, Integer
 from project.connection.connection_generator import DatabaseConnectionGenerator
 from project.query.err_codes import ItemQueryErrorCode, UserQueryErrorCode
@@ -20,6 +22,7 @@ class DatabaseRegexNotMatched(Exception):
     code: int
 
     def __init__(self, __code: object, __msg: str):
+        # code는 에러 유형 식별자
         super().__init__(__msg)
         self.code = __code
 
@@ -49,14 +52,12 @@ class User(__base):
 
     @validates("id")
     def validate_id(self, __key, __id: str):
-        # 아이디는 60자 이하의 숫자/영어
         if not USER_ID_REGEX.match(__id):
             raise DatabaseRegexNotMatched(UserQueryErrorCode.ID_NOT_MATCHED, "user id not matched")
         return __id
 
     @validates("name")
     def validate_name(self, __key, __name: str):
-
         if not USER_NAME_REGEX.match(__name):
             raise DatabaseRegexNotMatched(UserQueryErrorCode.NAME_NOT_MATCHED, "user name not matched")
         return __name
@@ -90,6 +91,8 @@ class Item(__base):
     current_money = Column("currentMoney", Integer, nullable=False, default=0)
     funding_unit = Column("fundingUnit", Integer, nullable=False)
 
+    """ validates """
+
     @validates("item_id")
     def validate_item_id(self, __key: str, __item_id: str):
         if not ITEM_ITEMID_REGEX.match(__item_id):
@@ -106,6 +109,7 @@ class Item(__base):
 
     @validates("name")
     def validate_name(self, __key: str, __name: str):
+        # 1자 이상 128자 이하
         if not __name or len(__name) > 128:
             raise DatabaseRegexNotMatched(
                 ItemQueryErrorCode.NAME_NOT_MATCHED, "name not matched")
@@ -113,6 +117,7 @@ class Item(__base):
 
     @validates("end_date")
     def validate_end_date(self, __key: str, __date: datetime.datetime):
+        # 과거여도 상관없음 단 데이터가 비어있으면 안됨
         if not __date:
             raise DatabaseRegexNotMatched(
                 ItemQueryErrorCode.END_DATE_NOT_MATCHED, "end date must not be none")
@@ -120,6 +125,7 @@ class Item(__base):
 
     @validates("participant_size")
     def validate_participant_size(self, __key: str, __size: int):
+        # 참가자 수는 음수일 수가 없음
         if __size < 0:
             raise DatabaseRegexNotMatched(
                 ItemQueryErrorCode.PARTICIPANT_SIZE_NOT_MATCHED, "participant size error")
@@ -127,6 +133,7 @@ class Item(__base):
 
     @validates("target_money")
     def validate_target_money(self, __key: str, __money: int):
+        # 목표 금액은 1원 이상
         if __money <= 0:
             raise DatabaseRegexNotMatched(
                 ItemQueryErrorCode.TARGET_MONEY_NOT_MATCHED, "participant size error")
@@ -134,6 +141,7 @@ class Item(__base):
 
     @validates("funding_unit")
     def validate_funding_unit(self, __key: str, __funding_unit: int):
+        # 1회당 펀딩 금액은 1원 이상
         if __funding_unit <= 0:
             raise DatabaseRegexNotMatched(
                 ItemQueryErrorCode.FUNDING_UNIT_NOT_MATCHED, "participant size error")
@@ -141,6 +149,7 @@ class Item(__base):
 
     @validates("current_money")
     def validate_current_money(self, __key: str, __current_money: int):
+        # 현재 금액은 0원 이상
         if __current_money < 0:
             raise DatabaseRegexNotMatched(
                 ItemQueryErrorCode.CURRENT_MONEY_NOT_MATCHED, "current money not matched"
@@ -171,6 +180,7 @@ class ItemContents(__base):
 
     @validates("summary")
     def validate_summary(self, __key: str, __summary: str):
+        # 비어있거나 2048자 이하
         if __summary and len(__summary) > 2048:
             raise DatabaseRegexNotMatched(
                 ItemQueryErrorCode.SUMMARY_MATCHED_FAILED, "summary not matched"

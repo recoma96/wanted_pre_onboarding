@@ -101,6 +101,12 @@ class TestQueryUser(unittest.TestCase):
             def_end_date, def_funding_unit, def_target_money
         ), ItemQueryErrorCode.SUCCEED)
 
+        # 8. 같은 상품을 등록할 수 없다.
+        self.assertEqual(ItemQuery.create(
+            ["id", def_user_id], def_name, "",
+            def_end_date, def_funding_unit, def_target_money
+        ), ItemQueryErrorCode.ITEM_ALREADY_EXISTS)
+
     def test_update(self):
         # 테스팅을 위한 유저 생성
         user_name: str = "유저01"
@@ -184,7 +190,7 @@ class TestQueryUser(unittest.TestCase):
                          current_money=answer['current_money'],
                          )
 
-        # 검색
+        # 검토
         res: Dict[str, object] = ItemQuery.read("name", answer['name'])
         for k, v in answer.items():
             # 데이터가 맞는 지 확인
@@ -232,6 +238,7 @@ class TestQueryUser(unittest.TestCase):
         csv_reader = csv_reader_for_test("test/inputs/test_query_item_read_list.csv")
         for data in csv_reader:
             if data['name'] == 'name':
+                # 맨 상단 표 제목
                 continue
             ItemQuery.create(
                 ["id", user_id],
@@ -257,6 +264,7 @@ class TestQueryUser(unittest.TestCase):
         csv_reader = csv_reader_for_test("test/inputs/test_query_item_read_list.csv")
         for data in csv_reader:
             if data['name'] == 'name':
+                # 맨 상단 표 제목
                 continue
             ItemQuery.create(
                 ["id", user_id],

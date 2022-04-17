@@ -9,6 +9,8 @@ from sqlalchemy.orm.scoping import scoped_session
 class DatabaseConnection(metaclass=ABCMeta):
     """ RDB 커넥션
         데이터베이스 엔진을 직접 관리하는 객체
+        해당 객체는 DB 접속의 문제를 줄이기 위해
+        하나의 서버에 하나의 객체만 생성되어야 하기 때문에 Singletone Pattern을 도입하였다.
 
         하위 클래스로 테스트용 커넥션과, 배포용 커넥션이 있다.
     """
@@ -55,6 +57,7 @@ class TestingDatabaseConnection(DatabaseConnection):
     def connect(self):
         if not self.engine:
             # engine이 없는 경우 -> connection을 활성화하지 않음
+            # test.db 파일을 이용한 테스팅
             self.engine = create_engine("sqlite:///test.db")
             self.session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=self.engine))
 

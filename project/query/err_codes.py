@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class UserQueryErrorCode(Enum):
+    """ ERROR CODES """
     SUCCEED: int = 0
     ID_NOT_MATCHED: int = 1
     NAME_NOT_MATCHED: int = 2

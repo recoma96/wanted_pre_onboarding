@@ -24,6 +24,7 @@ class UserQuery(Query):
             # 이름이 맞지 않음
             return e.code
         except sqlalchemy.exc.IntegrityError:
+            # DB 내부 에러
             # 동일한 이름의 유저를 생성하려고 할 때 발생한다.
             # 트랜잭션을 롤백한다.
             db_session.rollback()
@@ -41,7 +42,8 @@ class UserQuery(Query):
         """ 유저 정보 찾기 """
 
         db_session = DatabaseConnectionGenerator.get_session()
-
+        
+        # key에 따른 User 정보 찾기
         if key == "name":
             target = db_session.query(User).filter(User.name == value).scalar()
         elif key == "id":
@@ -95,6 +97,10 @@ class UserQuery(Query):
 
     @staticmethod
     def delete(key: str, value: str) -> int:
+        """ User Remove Query
+            그러나 해당 유저가 만든 상품까지 삭제를 하지 않고 이는 Manager단에서 상품 삭제를 수행한다
+            TODO 현재 요구사항에는 User 삭제 API가 없으므로 추가 요구사항이 들어올 경우 Manager단에서 추가 구현 예정
+        """
         db_session = DatabaseConnectionGenerator.get_session()
 
         if key == "name":
@@ -102,12 +108,15 @@ class UserQuery(Query):
         elif key == "id":
             user = db_session.query(User).filter(User.id == value).scalar()
         else:
+            # key 매칭 실패
             raise TypeError("Key is not matched")
 
         if not user:
+            # 해당 유저 없음
             return UserQueryErrorCode.USER_NOT_EXIST
 
         try:
+            # 삭제 수행
             db_session.delete(user)
             db_session.commit()
         except Exception as e:
@@ -117,7 +126,7 @@ class UserQuery(Query):
         # 삭제 성공
         return UserQueryErrorCode.SUCCEED
 
-    """ Expected Queries """
+    """ Expanded Queries """
 
     @staticmethod
     def search_users(regex: str) -> List[Dict[str, str]]:
