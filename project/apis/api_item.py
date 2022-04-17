@@ -1,3 +1,5 @@
+import math
+
 from flask_restx import Resource, Namespace
 from flask import request
 
@@ -53,6 +55,9 @@ class APIItem(Resource):
             # datetime은 json으로 포맷이 불가능하므로 string으로 바꾼다.
             res['end_date'] = datetime.datetime.strftime(res['end_date'], "%Y/%m/%d %H:%M:%S")
 
+            # 소수점을 버린다
+            res['funding_gage'] = math.floor(res['funding_gage'])
+
             return {"result": API_RES_OK, "data": res}
         else:
             # 없음
@@ -79,6 +84,7 @@ class APIItem(Resource):
 
         if res == 0:
             # 성공
+            # 소수점 버림
             return {"result": API_RES_OK}
         else:
             # 실패
