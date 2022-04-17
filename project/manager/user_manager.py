@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 
 from project.manager.manager import Manager
 from project.query.err_codes import UserQueryErrorCode
@@ -14,12 +14,19 @@ class UserManager(Manager):
         return cls.user_manager_instance
 
     def add_user(self, name: str) -> int:
+        """
+
+        :param name: 새로운 이름
+        :return: 에러 코드
+        """
         try:
             return UserQuery.create(name).value
         except Exception as e:
             raise e
 
-    def get_user(self, name: str = None, user_id: str = None) -> Dict[str, object]:
+    def get_user(self,
+                 name: Optional[str] = None,
+                 user_id: Optional[str] = None) -> Dict[str, object]:
         if user_id:
             return UserQuery.read("id", user_id)
         elif name:
@@ -27,8 +34,17 @@ class UserManager(Manager):
         else:
             return None
 
-    def update_user(self, new_name: str, user_name: str = None, user_id: str = None) -> bool:
+    def update_user(self,
+                    new_name: str,
+                    user_name: Optional[str] = None,
+                    user_id: Optional[str] = None) -> bool:
+        """
 
+        :param new_name:
+        :param user_name:
+        :param user_id:
+        :return: 성공시 True, 실패시(이름이 중복되는 경우) False, 에러시 Raise Error
+        """
         if user_id:
             if UserQuery.update(key="id", target_value=user_id, new_name=new_name) == \
                     UserQueryErrorCode.SUCCEED:
