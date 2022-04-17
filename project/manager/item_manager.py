@@ -51,7 +51,7 @@ class ItemManager(Manager):
                 target_money=target_money,
                 end_date=end_date,
                 funding_unit=funding_unit
-            )
+            ).value
         except Exception as e:
             raise e
 
@@ -104,9 +104,9 @@ class ItemManager(Manager):
 
     def remove_item(self, item_name: Optional[str] = None, item_id: Optional[str] = None):
         if item_id:
-            return ItemQuery.delete("id", item_id)
+            return ItemQuery.delete("id", item_id).value
         elif item_name:
-            return ItemQuery.delete("name", item_name)
+            return ItemQuery.delete("name", item_name).value
 
     def get_list(self, regex: str):
         return ItemQuery.read_item_list_by_name_regex(regex)

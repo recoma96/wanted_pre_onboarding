@@ -1,6 +1,7 @@
 from flask import Flask
-from flask_restx import Api, Resource
+from flask_restx import Api
 
+from project.apis.api_item import api_item
 from project.apis.api_user import api_user
 from project.connection.connection_generator import DatabaseConnectionGenerator
 from project.manager.item_manager import ItemManager
@@ -12,6 +13,7 @@ api = Api(app)
 
 # res api 등록
 api.add_namespace(api_user, '/user')
+api.add_namespace(api_item, '/item')
 
 # databsae 생성
 # 테스트인지 배포용인지 해당 객체 내에서 알아서 구별해서 DB를 실행 및 생성한다.

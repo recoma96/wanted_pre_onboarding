@@ -54,5 +54,3 @@ class APIUser(Resource):
         else:
             # 수정 성공
             return {"result": API_RES_OK}
-
-
