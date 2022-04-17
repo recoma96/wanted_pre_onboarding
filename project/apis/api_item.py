@@ -11,7 +11,7 @@ api_item = Namespace('Item')
 @api_item.route('/<string:item_name>')
 class APIItem(Resource):
     def post(self, item_name):
-        # 새 아이템 생성
+        # 새 상품 생성
 
         data = request.json
         try:
@@ -34,7 +34,7 @@ class APIItem(Resource):
             return {"result": API_RES_FAILED}
 
     def get(self, item_name):
-        # 상품 정보 수정하기
+        # 상품 상세정보 얻기
         try:
             res = ItemManager().get_item(item_name)
         except Exception:
@@ -59,7 +59,7 @@ class APIItem(Resource):
             return {"result": API_RES_FAILED, "data": None}
 
     def put(self, item_name):
-        # 상세 정보 갖고오기
+        # 상품 정보 수정
         data = request.json
         try:
             res = ItemManager().update_item(
@@ -77,7 +77,7 @@ class APIItem(Resource):
         except Exception:
             return {"result": API_RES_FAILED}
 
-        if res:
+        if res == 0:
             # 성공
             return {"result": API_RES_OK}
         else:

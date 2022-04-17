@@ -161,7 +161,7 @@ class TestApi(unittest.TestCase):
                     self.api.put(f"/item/{item_name}/donate")
 
                 inputs.append({
-                    # 곌과 비교를 위한 input 데이터 정리
+                    # 결과 비교를 위한 input 데이터 정리
                     "item_name": item_name,
                     "current_money": int(current_money)
                 })

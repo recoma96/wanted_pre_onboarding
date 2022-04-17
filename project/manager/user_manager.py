@@ -14,7 +14,7 @@ class UserManager(Manager):
         return cls.user_manager_instance
 
     def add_user(self, name: str) -> int:
-        """
+        """ 유저 생성
 
         :param name: 새로운 이름
         :return: 에러 코드
@@ -27,6 +27,7 @@ class UserManager(Manager):
     def get_user(self,
                  name: Optional[str] = None,
                  user_id: Optional[str] = None) -> Dict[str, object]:
+        """ 유저 정보 얻기 """
         if user_id:
             return UserQuery.read("id", user_id)
         elif name:
@@ -38,7 +39,7 @@ class UserManager(Manager):
                     new_name: str,
                     user_name: Optional[str] = None,
                     user_id: Optional[str] = None) -> bool:
-        """
+        """ 유저 수정
 
         :param new_name:
         :param user_name:

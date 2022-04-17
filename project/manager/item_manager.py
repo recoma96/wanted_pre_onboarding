@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 from manager.manager import Manager
 import datetime
@@ -8,6 +8,8 @@ from query.item_query import ItemQuery
 
 
 class ItemManager(Manager):
+    """ 상품을 관리하는 매니저
+    """
 
     def __new__(cls, *args, **kwargs):
         # 하나의 서버에 하나의 객체만 있어야 하기 때문에 Singletone Pattern 도입
@@ -25,8 +27,8 @@ class ItemManager(Manager):
             user_id: Optional[str] = None,
             user_name: Optional[str] = None,
 
-    ):
-        """
+    ) -> int:
+        """ 상품 추가
 
         :param title: 상품명
         :param summary: 설명
@@ -35,7 +37,6 @@ class ItemManager(Manager):
         :param funding_unit: 1회펀딩당 금액
         :param user_id: 게시자 아이디 Optional
         :param user_name: 유저 아이디 Optional
-        :return:
         """
 
         user_info: Optional[List] = None
@@ -65,8 +66,9 @@ class ItemManager(Manager):
             current_money: Optional[int] = None,
             item_name: Optional[str] = None,
             item_id: Optional[str] = None,
-    ):
-        """
+    ) -> int:
+        """ 상품 수정
+        
         :param title:  새 상품명
         :param summary: 새 설명란
         :param end_date: 새 종료시간
@@ -89,10 +91,10 @@ class ItemManager(Manager):
             funding_unit=funding_unit,
             participant_size=participant_size,
             current_money=current_money
-        )
+        ).value
 
-    def get_item(self, item_name: Optional[str] = None, item_id: Optional[str] = None):
-
+    def get_item(self, item_name: Optional[str] = None, item_id: Optional[str] = None) -> Dict[str, object]:
+        """ 상품 상세 정보 획득 """
         d = None
 
         if item_id:
@@ -102,20 +104,24 @@ class ItemManager(Manager):
 
         return ItemQuery.read(*d)
 
-    def remove_item(self, item_name: Optional[str] = None, item_id: Optional[str] = None):
+    def remove_item(self, item_name: Optional[str] = None, item_id: Optional[str] = None) -> int:
+        """ 상품 삭제 """
         if item_id:
             return ItemQuery.delete("id", item_id).value
         elif item_name:
             return ItemQuery.delete("name", item_name).value
 
-    def get_list(self, regex: str):
+    def get_list(self, regex: str) -> List[Dict[str, object]]:
+        """ 문자열 패턴을 이용한 상품 리스트 출력 """
         return ItemQuery.read_item_list_by_name_regex(regex)
 
-    def sort(self, sort_type: str):
-        # 정렬
+    def sort(self, sort_type: str) -> List[Dict[str, object]]:
+        """ 리스트 정렬 """
         if sort_type == "funding":
+            # 현재 펀딩 금액 기준 정렬
             return ItemQuery.sort_by_fundingmoney()
         elif sort_type == "create_date":
+            # 생성일 기준 정렬
             return ItemQuery.sort_by_createdate()
         else:
             raise TypeError("Type not matched")
