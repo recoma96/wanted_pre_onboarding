@@ -1,3 +1,4 @@
+import json
 from abc import ABCMeta, abstractmethod
 
 import sqlalchemy.engine
@@ -75,11 +76,18 @@ class ProductionDatabaseConnection(DatabaseConnection):
     __state = {"engine": None, "session": None}
 
     def __init__(self, *args):
-        pass
+        self.__dict__ = self.__state
 
     def connect(self):
-        pass
+        # Production의 경우 config 파일에서 데이터베이스 정보를 불러와서 킨다
+        with open("configs/rdb.json", "rt") as f:
+            data = json.load(f)
+
+            self.engine = create_engine(
+                f"mysql+pymysql://{data['user']}:{data['password']}@{data['host']}:{data['port']}/{data['database']}")
+            self.session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=self.engine))
 
     def disconnect(self):
-        pass
-
+        if self.engine and self.session:
+            self.session.remove()
+        self.session, self.engine = None, None
