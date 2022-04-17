@@ -3,10 +3,10 @@ import json
 import re
 import unittest
 
-from project.apis.api_values import API_RES_FAILED, API_RES_OK
-from project.app import app
-from project.connection.connection_generator import DatabaseConnectionGenerator
-from project.model.model import ItemContents, Item, remove_test_db
+from apis.api_values import API_RES_FAILED, API_RES_OK
+from app import app
+from connection.connection_generator import DatabaseConnectionGenerator
+from model.model import ItemContents, Item, remove_test_db
 
 
 class TestApi(unittest.TestCase):
@@ -134,7 +134,7 @@ class TestApi(unittest.TestCase):
         self.api.post(f"/user/{user_name}")
 
         # 데이터 준비
-        with open("project/test/inputs/api_item_test.csv", "rt") as f:
+        with open("test/inputs/api_item_test.csv", "rt") as f:
             reader = csv.reader(f)
 
             for item_name, summary, end_date, funding_unit, target_money, current_money in reader:

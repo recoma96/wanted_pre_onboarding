@@ -1,8 +1,8 @@
 from flask_restx import Resource, Namespace
 from flask import request
 
-from project.apis.api_values import *
-from project.manager.item_manager import ItemManager
+from apis.api_values import *
+from manager.item_manager import ItemManager
 import datetime
 
 api_item = Namespace('Item')

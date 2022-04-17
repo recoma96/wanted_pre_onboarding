@@ -2,7 +2,7 @@ import sys
 
 import sqlalchemy
 
-from project.connection.database_connection import DatabaseConnection, TestingDatabaseConnection, \
+from connection.database_connection import DatabaseConnection, TestingDatabaseConnection, \
     ProductionDatabaseConnection
 from sqlalchemy.orm.scoping import scoped_session
 

@@ -2,10 +2,10 @@ import unittest
 from typing import Dict
 import datetime
 
-from project.connection.connection_generator import DatabaseConnectionGenerator
-from project.manager.item_manager import ItemManager
-from project.manager.user_manager import UserManager
-from project.model.model import rdb_create_all, remove_test_db, User, Item, ItemContents
+from connection.connection_generator import DatabaseConnectionGenerator
+from manager.item_manager import ItemManager
+from manager.user_manager import UserManager
+from model.model import rdb_create_all, remove_test_db, User, Item, ItemContents
 
 
 class TestUserManager(unittest.TestCase):

@@ -3,12 +3,12 @@ import unittest
 import datetime
 from typing import Dict, List
 
-from project.connection.connection_generator import DatabaseConnectionGenerator
-from project.model.model import rdb_create_all, remove_test_db, User, Item, ItemContents
-from project.query.err_codes import ItemQueryErrorCode
-from project.query.item_query import ItemQuery
-from project.query.user_query import UserQuery
-from project.test.csv_reader_for_test import csv_reader_for_test
+from connection.connection_generator import DatabaseConnectionGenerator
+from model.model import rdb_create_all, remove_test_db, User, Item, ItemContents
+from query.err_codes import ItemQueryErrorCode
+from query.item_query import ItemQuery
+from query.user_query import UserQuery
+from test.csv_reader_for_test import csv_reader_for_test
 
 
 class TestQueryUser(unittest.TestCase):
@@ -209,7 +209,7 @@ class TestQueryUser(unittest.TestCase):
         user_id: str = UserQuery.read("name", user_name)['id']
 
         # csv 파일을 불러와서 상품들을 생성
-        csv_reader = csv_reader_for_test("project/test/inputs/test_query_item_read_list.csv")
+        csv_reader = csv_reader_for_test("test/inputs/test_query_item_read_list.csv")
         for data in csv_reader:
             if data['name'] == 'name':
                 continue
@@ -236,7 +236,7 @@ class TestQueryUser(unittest.TestCase):
         user_id: str = UserQuery.read("name", user_name)['id']
 
         # csv 파일을 불러와서 상품들을 생성
-        csv_reader = csv_reader_for_test("project/test/inputs/test_query_item_read_list.csv")
+        csv_reader = csv_reader_for_test("test/inputs/test_query_item_read_list.csv")
         for data in csv_reader:
             if data['name'] == 'name':
                 # 맨 상단 표 제목
@@ -262,7 +262,7 @@ class TestQueryUser(unittest.TestCase):
         user_id: str = UserQuery.read("name", user_name)['id']
 
         # csv 파일을 불러와서 상품들을 생성
-        csv_reader = csv_reader_for_test("project/test/inputs/test_query_item_read_list.csv")
+        csv_reader = csv_reader_for_test("test/inputs/test_query_item_read_list.csv")
         for data in csv_reader:
             if data['name'] == 'name':
                 # 맨 상단 표 제목

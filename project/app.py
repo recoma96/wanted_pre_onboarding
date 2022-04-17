@@ -1,12 +1,12 @@
 from flask import Flask
 from flask_restx import Api
 
-from project.apis.api_item import api_item
-from project.apis.api_user import api_user
-from project.connection.connection_generator import DatabaseConnectionGenerator
-from project.manager.item_manager import ItemManager
-from project.manager.user_manager import UserManager
-from project.model.model import rdb_create_all
+from apis.api_item import api_item
+from apis.api_user import api_user
+from connection.connection_generator import DatabaseConnectionGenerator
+from manager.item_manager import ItemManager
+from manager.user_manager import UserManager
+from model.model import rdb_create_all
 
 app = Flask(__name__)
 api = Api(app)

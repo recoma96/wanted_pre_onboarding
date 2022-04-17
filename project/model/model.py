@@ -4,8 +4,8 @@ import random
 import string
 from sqlalchemy.orm import declarative_base, validates
 from sqlalchemy import Column, String, ForeignKey, DateTime, func, Integer
-from project.connection.connection_generator import DatabaseConnectionGenerator
-from project.query.err_codes import ItemQueryErrorCode, UserQueryErrorCode
+from connection.connection_generator import DatabaseConnectionGenerator
+from query.err_codes import ItemQueryErrorCode, UserQueryErrorCode
 
 # 데이터베이스 테이블을 생성하기 위한 함수
 # 밖에서 사용하지 말 것

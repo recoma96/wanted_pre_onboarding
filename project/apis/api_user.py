@@ -1,8 +1,8 @@
 from flask_restx import Resource, Namespace
 from flask import request
 
-from project.apis.api_values import *
-from project.manager.user_manager import UserManager
+from apis.api_values import *
+from manager.user_manager import UserManager
 
 api_user = Namespace('User')
 

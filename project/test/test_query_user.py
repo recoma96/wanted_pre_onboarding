@@ -1,10 +1,10 @@
 import unittest
 from typing import List, Dict
 
-from project.connection.connection_generator import DatabaseConnectionGenerator
-from project.model.model import rdb_create_all, remove_test_db, User
-from project.query.err_codes import UserQueryErrorCode
-from project.query.user_query import UserQuery
+from connection.connection_generator import DatabaseConnectionGenerator
+from model.model import rdb_create_all, remove_test_db, User
+from query.err_codes import UserQueryErrorCode
+from query.user_query import UserQuery
 
 
 class TestQueryUser(unittest.TestCase):

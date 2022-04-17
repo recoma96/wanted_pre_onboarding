@@ -4,11 +4,11 @@ from typing import List, Dict
 import sqlalchemy.exc
 from sqlalchemy import desc
 
-from project.connection.connection_generator import DatabaseConnectionGenerator
-from project.model.model import User, Item, DatabaseRegexNotMatched, generate_id, ItemContents
-from project.query.err_codes import ItemQueryErrorCode
-from project.query.query import Query
-from project.query.user_query import UserQuery
+from connection.connection_generator import DatabaseConnectionGenerator
+from model.model import User, Item, DatabaseRegexNotMatched, generate_id, ItemContents
+from query.err_codes import ItemQueryErrorCode
+from query.query import Query
+from query.user_query import UserQuery
 
 
 class ItemQuery(Query):

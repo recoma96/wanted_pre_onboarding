@@ -1,9 +1,9 @@
 import unittest
 
-from project.connection.connection_generator import DatabaseConnectionGenerator
-from project.manager.user_manager import UserManager
-from project.model.model import rdb_create_all, remove_test_db, User, Item
-from project.query.err_codes import UserQueryErrorCode
+from connection.connection_generator import DatabaseConnectionGenerator
+from manager.user_manager import UserManager
+from model.model import rdb_create_all, remove_test_db, User, Item
+from query.err_codes import UserQueryErrorCode
 
 
 class TestUserManager(unittest.TestCase):

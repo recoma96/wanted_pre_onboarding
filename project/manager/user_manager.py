@@ -1,8 +1,8 @@
 from typing import Dict, Optional
 
-from project.manager.manager import Manager
-from project.query.err_codes import UserQueryErrorCode
-from project.query.user_query import UserQuery
+from manager.manager import Manager
+from query.err_codes import UserQueryErrorCode
+from query.user_query import UserQuery
 
 
 class UserManager(Manager):

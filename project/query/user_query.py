@@ -1,9 +1,9 @@
 import sqlalchemy.exc
 
-from project.connection.connection_generator import DatabaseConnectionGenerator
-from project.model.model import User, DatabaseRegexNotMatched, generate_id
-from project.query.err_codes import UserQueryErrorCode
-from project.query.query import Query
+from connection.connection_generator import DatabaseConnectionGenerator
+from model.model import User, DatabaseRegexNotMatched, generate_id
+from query.err_codes import UserQueryErrorCode
+from query.query import Query
 from typing import List, Dict
 
 

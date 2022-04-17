@@ -1,10 +1,10 @@
 from typing import Optional, List
 
-from project.manager.manager import Manager
+from manager.manager import Manager
 import datetime
 
-from project.query.err_codes import ItemQueryErrorCode
-from project.query.item_query import ItemQuery
+from query.err_codes import ItemQueryErrorCode
+from query.item_query import ItemQuery
 
 
 class ItemManager(Manager):
