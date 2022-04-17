@@ -181,15 +181,15 @@ project 디렉토리의 구성도는 다음과 같습니다.
 * query: Query Layer의 클래스들이 작성되어 있습니다.
 * test: Test Code 입니다.
 
-## 실행 방법
+## 실행 방법 (CLI 기준)
 * 공통
   1. requirements.txt로 필요한 패키지들을 설치합니다.
+  2. project 폴더로 이동합니다.
 * 테스팅
   2. ```python -m unittest``` 를 입력합니다.
 * 배포(Production)
-  * project로 이동합니다.
   * configs/config.json에서 데이터베이스 환경을 수정합니다.
-  * python app.py를 실행합니다.
+  * ```python app.py``` 를 입력합니다.
 
 ## API Document
 
