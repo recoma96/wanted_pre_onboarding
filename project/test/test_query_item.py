@@ -209,7 +209,7 @@ class TestQueryUser(unittest.TestCase):
         user_id: str = UserQuery.read("name", user_name)['id']
 
         # csv 파일을 불러와서 상품들을 생성
-        csv_reader = csv_reader_for_test("test/inputs/test_query_item_read_list.csv")
+        csv_reader = csv_reader_for_test("project/test/inputs/test_query_item_read_list.csv")
         for data in csv_reader:
             if data['name'] == 'name':
                 continue
@@ -236,7 +236,7 @@ class TestQueryUser(unittest.TestCase):
         user_id: str = UserQuery.read("name", user_name)['id']
 
         # csv 파일을 불러와서 상품들을 생성
-        csv_reader = csv_reader_for_test("test/inputs/test_query_item_read_list.csv")
+        csv_reader = csv_reader_for_test("project/test/inputs/test_query_item_read_list.csv")
         for data in csv_reader:
             if data['name'] == 'name':
                 # 맨 상단 표 제목
@@ -262,7 +262,7 @@ class TestQueryUser(unittest.TestCase):
         user_id: str = UserQuery.read("name", user_name)['id']
 
         # csv 파일을 불러와서 상품들을 생성
-        csv_reader = csv_reader_for_test("test/inputs/test_query_item_read_list.csv")
+        csv_reader = csv_reader_for_test("project/test/inputs/test_query_item_read_list.csv")
         for data in csv_reader:
             if data['name'] == 'name':
                 # 맨 상단 표 제목

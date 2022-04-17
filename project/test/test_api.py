@@ -134,7 +134,7 @@ class TestApi(unittest.TestCase):
         self.api.post(f"/user/{user_name}")
 
         # 데이터 준비
-        with open("test/inputs/api_item_test.csv", "rt") as f:
+        with open("project/test/inputs/api_item_test.csv", "rt") as f:
             reader = csv.reader(f)
 
             for item_name, summary, end_date, funding_unit, target_money, current_money in reader:
