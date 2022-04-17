@@ -4,7 +4,7 @@ import datetime
 from typing import Dict, List
 
 from project.connection.connection_generator import DatabaseConnectionGenerator
-from project.model.model import rdb_create_all, remove_test_db, User, Item
+from project.model.model import rdb_create_all, remove_test_db, User, Item, ItemContents
 from project.query.err_codes import ItemQueryErrorCode
 from project.query.item_query import ItemQuery
 from project.query.user_query import UserQuery
@@ -32,9 +32,9 @@ class TestQueryUser(unittest.TestCase):
     def tearDown(self) -> None:
         # 테스트 함수가 끝날 때마다 호출
         # 모든 데이터 전부 삭제
-        # 유저만 삭제하면 상품까지 같이 삭제된다.
-        DatabaseConnectionGenerator.get_session().query(Item).delete()
-        DatabaseConnectionGenerator.get_session().query(User).delete()
+        db_session = DatabaseConnectionGenerator.get_session()
+        db_session.query(Item).delete()
+        db_session.query(User).delete()
 
     def test_create(self):
         """ 상품(만) 생성 (펀딩관련 생성 X)
@@ -246,3 +246,31 @@ class TestQueryUser(unittest.TestCase):
         csv_reader.sort(key=lambda d: -d['current_money'])
         ans = [d['name'] for d in csv_reader]
         self.assertEqual(ans, res)
+
+    def test_delete(self):
+
+        user_name: str = "유저01"
+        UserQuery.create(user_name)
+        user_id: str = UserQuery.read("name", user_name)['id']
+
+        # csv 파일을 불러와서 상품들을 생성
+        csv_reader = csv_reader_for_test("test/inputs/test_query_item_read_list.csv")
+        for data in csv_reader:
+            if data['name'] == 'name':
+                continue
+            ItemQuery.create(
+                ["id", user_id],
+                data['name'], data['summary'], data['end_date'],
+                data['funding_unit'], data['target_money']
+            )
+            ItemQuery.update(["name", data['name']], current_money=data['current_money'])
+
+        # 하나 삭제
+        delete_item_name = csv_reader[0]['name']
+        delete_item_id = ItemQuery.read("name", delete_item_name)['item_id']
+        self.assertEqual(ItemQuery.delete("name", delete_item_name), ItemQueryErrorCode.SUCCEED)
+        self.assertIsNone(ItemQuery.read("name", delete_item_name))
+
+        # 컨텐츠(설명)도 같이 삭제되어야 한다.
+        db = DatabaseConnectionGenerator.get_session()
+        self.assertIsNone(db.query(ItemContents).filter(ItemContents.item_id == delete_item_id).scalar())

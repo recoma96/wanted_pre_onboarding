@@ -1,6 +1,4 @@
-import string
 import datetime
-import random
 from typing import List, Dict
 
 import sqlalchemy.exc
@@ -63,7 +61,7 @@ class ItemQuery(Query):
         except DatabaseRegexNotMatched as e:
             # validate failed
             return e.code
-        except sqlalchemy.exc.IntegrityError as e:
+        except sqlalchemy.exc.IntegrityError:
             # DB 상에서의 에러
             # rollback
             db_session.rollback()
@@ -183,18 +181,21 @@ class ItemQuery(Query):
         """ 아이템 삭제 """
         if key == "id":
             # 아이디를 이용한 삭제
-            deleted_item = db_session.query(ItemQuery).filter(Item.item_id == value).scalar()
+            deleted_item = db_session.query(Item).filter(Item.item_id == value).scalar()
         elif key == "name":
             # 상풍명을 이용한 삭제
-            deleted_item = db_session.query(ItemQuery).filter(Item.name == value).scalar()
+            deleted_item = db_session.query(Item).filter(Item.name == value).scalar()
 
         # 없음
         if not deleted_item:
             return ItemQueryErrorCode.ITEM_NOT_EXISTS
 
-        # 삭제
+        # 삭제할 컨텐츠
+        contents = \
+            db_session.query(ItemContents).filter(ItemContents.item_id == deleted_item.item_id).scalar()
         try:
             db_session.delete(deleted_item)
+            db_session.delete(contents)
             db_session.commit()
         except Exception as e:
             # DB 내부 오류

@@ -11,19 +11,19 @@ class UserQuery(Query):
     """ 유저 관련 쿼리 """
 
     @staticmethod
-    def create(__name: str) -> UserQueryErrorCode:
+    def create(name: str) -> UserQueryErrorCode:
         """ 유저 생성 """
         db_session = DatabaseConnectionGenerator.get_session()
 
         try:
             # create
-            user: User = User(id=generate_id(), name=__name)
+            user: User = User(id=generate_id(), name=name)
             db_session.add(user)
             db_session.commit()
         except DatabaseRegexNotMatched as e:
             # 이름이 맞지 않음
             return e.code
-        except sqlalchemy.exc.IntegrityError as e:
+        except sqlalchemy.exc.IntegrityError:
             # 동일한 이름의 유저를 생성하려고 할 때 발생한다.
             # 트랜잭션을 롤백한다.
             db_session.rollback()
@@ -37,15 +37,15 @@ class UserQuery(Query):
             return UserQueryErrorCode.SUCCEED
 
     @staticmethod
-    def read(__key: str, __value: str) -> Dict[str, str]:
+    def read(key: str, value: str) -> Dict[str, str]:
         """ 유저 정보 찾기 """
 
         db_session = DatabaseConnectionGenerator.get_session()
 
-        if __key == "name":
-            target = db_session.query(User).filter(User.name == __value).scalar()
-        elif __key == "id":
-            target = db_session.query(User).filter(User.id == __value).scalar()
+        if key == "name":
+            target = db_session.query(User).filter(User.name == value).scalar()
+        elif key == "id":
+            target = db_session.query(User).filter(User.id == value).scalar()
         else:
             raise TypeError("Key is not matched")
 
@@ -58,16 +58,16 @@ class UserQuery(Query):
         }
 
     @staticmethod
-    def update(__key: str, __target_value: str, __new_name: str) -> int:
+    def update(key: str, target_value: str, new_name: str) -> int:
         """ 유저 이름 수정 """
 
         db_session = DatabaseConnectionGenerator.get_session()
         # 유저 찾기
 
-        if __key == "name":
-            user = db_session.query(User).filter(User.name == __target_value).scalar()
-        elif __key == "id":
-            user = db_session.query(User).filter(User.id == __target_value).scalar()
+        if key == "name":
+            user = db_session.query(User).filter(User.name == target_value).scalar()
+        elif key == "id":
+            user = db_session.query(User).filter(User.id == target_value).scalar()
         else:
             raise TypeError("Key is not matched")
 
@@ -76,7 +76,7 @@ class UserQuery(Query):
             return UserQueryErrorCode.USER_NOT_EXIST
 
         try:
-            user.name = __new_name
+            user.name = new_name
             db_session.commit()
         except DatabaseRegexNotMatched as e:
             # 이름이 맞지 않음
@@ -94,13 +94,13 @@ class UserQuery(Query):
             return UserQueryErrorCode.SUCCEED
 
     @staticmethod
-    def delete(__key: str, __value: str) -> int:
+    def delete(key: str, value: str) -> int:
         db_session = DatabaseConnectionGenerator.get_session()
 
-        if __key == "name":
-            user = db_session.query(User).filter(User.name == __value).scalar()
-        elif __key == "id":
-            user = db_session.query(User).filter(User.id == __value).scalar()
+        if key == "name":
+            user = db_session.query(User).filter(User.name == value).scalar()
+        elif key == "id":
+            user = db_session.query(User).filter(User.id == value).scalar()
         else:
             raise TypeError("Key is not matched")
 
@@ -120,10 +120,10 @@ class UserQuery(Query):
     """ Expected Queries """
 
     @staticmethod
-    def search_users(__regex: str) -> List[Dict[str, str]]:
+    def search_users(regex: str) -> List[Dict[str, str]]:
         """ 패턴으로 여러 사용자 찾기 """
         db_session = DatabaseConnectionGenerator.get_session()
-        target: List[User] = db_session.query(User).filter(User.name.contains(__regex)).all()
+        target: List[User] = db_session.query(User).filter(User.name.contains(regex)).all()
 
         res: List[Dict[str, str]] = []
 

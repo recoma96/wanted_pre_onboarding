@@ -1,6 +1,6 @@
 import re, datetime, random
 import string
-from sqlalchemy.orm import declarative_base, validates
+from sqlalchemy.orm import declarative_base, validates, relationship, backref
 from sqlalchemy import Column, String, ForeignKey, DateTime, func, Integer
 from project.connection.connection_generator import DatabaseConnectionGenerator
 from project.query.err_codes import ItemQueryErrorCode, UserQueryErrorCode
